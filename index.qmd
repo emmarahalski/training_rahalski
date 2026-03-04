@@ -2,3 +2,15 @@
 title: "GitHub Pages Example"
 format: html
 ---
+
+## Course Lessons
+
+- [Introduction to Quarto](script/intro_quarto.html)
+- Introduction to git and GitHub
+- Cleaning and Wrangling data
+
+## Course Practice Session
+
+- Practice I
+- Practice II
+- Practice III
