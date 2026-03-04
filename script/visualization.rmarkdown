@@ -2,7 +2,9 @@
 title: "Visualization with ggplot2"
 format: html
 ---
+
 # Overview Ways of Presenting Data Visually
+
 ```{r}
 #| warning: false
 library(readr)
@@ -18,13 +20,14 @@ library(scales) # scale functions for visualization
 #Load In Data
 escape_raw <- read_csv('https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3Af119a05b-bbe7-4aea-93c6-85434dcb1c5e')
 ```
+
 **Data Cleaning**
 Column names have mixed conventions. Can clean this up using clean_names() janitor package
+
 ```{r}
 escape <- escape_raw |> clean_names()
 head(escape)
 ```
-
 
 ```{r}
 #Df is long, to simplify, summarize data To annual numbers
@@ -37,37 +40,47 @@ annual_esc <- escape |>
 head(annual_esc)
 
 ```
+
 # Look at ggplot2
 ## Ways to Plot with gg plot
 ### Option 1 - data and mapping called in the ggplot() function
+
 ```{r}
 ggplot(data = annual_esc,
        aes(x = species, y = escapement)) + # Gets axes values and arranges plot based on datatypes (e.g. categorical vs. continuous)
     geom_col() # Column Chart, will use the mapping from the ggplot call.
 ```
 
+
 ### Option 2 - data called in ggplot function; mapping called in geom
+
 ```{r}
 ggplot(data = annual_esc) +
     geom_col(aes(x = species, y = escapement)) #specify values within the geom_call
 ```
 
 
+
 ### Option 3 - data and mapping called in geom
+
 ```{r}
 ggplot() +
     geom_col(data = annual_esc,
              aes(x = species, y = escapement))
 ```
 
+
 - when geom col makes a column for different species, it will decide to sum the values over all years. If you instead use the geom_point method, it will instead plot each escapement value for each year
+
 ```{r}
 ggplot(data = annual_esc,
        aes(x = species, y = escapement)) + # Gets axes values and arranges plot based on datatypes (e.g. categorical vs. continuous)
     geom_col(aes(fill=species)) +
     geom_point()
 ```
+
 ### Plotting with Dplyr Pipelines
+
 ```{r}
 annual_esc |> 
   filter(year == 1974, species %in% c("Chum", "Pink")) |> 
@@ -76,6 +89,7 @@ annual_esc |>
   
 head(annual_esc)
 ```
+
 ```{r}
 annual_esc |> 
   filter(year == 1974, species %in% c("Chum", "Pink")) |> 
@@ -86,7 +100,9 @@ annual_esc |>
 
 ```
 
+
 # Making Nice Tables
+
 ```{r}
 library(DT)
 locations <-  escape |> 
@@ -99,13 +115,17 @@ locations <-  escape |>
 datatable(locations)
 ```
 
+
 # Mapping with leaflet
+
 ```{r}
 library(leaflet)
 ```
 
+
 Leaflet library us useful for making map inserts
 Note the syntax is a little different
+
 ```{r}
 leaflet(locations) %>%
     addTiles() %>% #dd default base layer
@@ -116,7 +136,6 @@ leaflet(locations) %>%
     )
 
 ```
-
 
 ```{r}
 
