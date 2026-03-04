@@ -1,0 +1,59 @@
+---
+title: "Visualization with ggplot2"
+format: html
+---
+```{r}
+#| warning: false
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(janitor) # expedite cleaning and exploring data
+library(scales) # scale functions for visualization
+```
+
+```{r}
+#| warning: false
+#Load In Data
+escape_raw <- read_csv('https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3Af119a05b-bbe7-4aea-93c6-85434dcb1c5e')
+```
+**Data Cleaning**
+Column names have mixed conventions. Can clean this up using clean_names() janitor package
+```{r}
+escape <- escape_raw |> clean_names()
+head(escape)
+```
+
+```{r}
+#Df is long, to simplify, summarize data To annual numbers
+annual_esc <- escape |> 
+  filter(species %in% c("Chinook", "Sockeye", "Chum", "Coho", "Pink")) |> 
+  mutate(year = lubridate::year(sample_date)) |>
+  group_by(species, sasap_region, year) |> 
+  summarize(escapement = sum(daily_count))
+
+head(annual_esc)
+
+```
+## Ways to Plot with gg plot
+### Option 1 - data and mapping called in the ggplot() function
+```{r}
+ggplot(data = annual_esc,
+       aes(x = species, y = escapement)) + # Gets axes values and arranges plot based on datatypes (e.g. categorical vs. continuous)
+    geom_col() # Column Chart, will use the mapping from the ggplot call.
+```
+
+### Option 2 - data called in ggplot function; mapping called in geom
+```{r}
+ggplot(data = annual_esc) +
+    geom_col(aes(x = species, y = escapement)) #specify values within the geom_call
+```
+
+
+### Option 3 - data and mapping called in geom
+```{r}
+ggplot() +
+    geom_col(data = annual_esc,
+             aes(x = species, y = escapement))
+```
+
