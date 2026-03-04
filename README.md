@@ -1,4 +1,4 @@
-# training-rahalski
+# Information on training_rahalski
 
 ## Git Workflow
 Step 1: Owner adds Collaborator to {FIRSTNAME}_test repository
