@@ -1,4 +1,4 @@
-# Information on training_rahalski
+# Information on training_rahalski Mar 4 2026
 
 ## Git Workflow
 Step 1: Owner adds Collaborator to {FIRSTNAME}_test repository
