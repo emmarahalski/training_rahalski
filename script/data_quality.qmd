@@ -12,6 +12,7 @@ library(visdat)
 library(readr)
 library(dplyr)
 library(tidyverse)
+library(ggplot2)
 ```
 
 ```{r}
@@ -19,9 +20,90 @@ library(tidyverse)
 #| warning: false
 
 bg_chem <- read_csv('../data/BGchem2008data.csv')
+
 ```
+
 ```{r}
 #Skim package `skim` function
+# Puts out much more detailed info
 skim(bg_chem)
+```
+```{r}
+#Can use skim to look at grouped output if you want to for eg look at summaries
+bg_chem %>% 
+  select(Station, O2) %>% 
+  group_by(Station) %>% 
+  skim()
+```
+
+```{r}
+bg_chem_clean <- bg_chem |> 
+  mutate(02 = na_if(02, -99))
+
+```
+```{r}
+# Instead You Can Specify Missing Value Code When Loading
+bg_chem_clean <- read_csv('../data/BGchem2008data.csv', na = "-99")
+```
+```{r}
+# ggplot2 function for visualizing data, helps visualize missing values
+vis_dat(bg_chem_clean) + 
+    theme(axis.text.x = element_text(angle = 45, vjust = 0))
+
+```
+```{r}
+# Can Use Facet to group by variables
+
+vis_dat(bg_chem_clean, facet = Station) +
+    theme(axis.text.x = element_text(angle = 45, vjust = 0))
+
+```
+
+#Formalized Validation with `pointblank`
+```{r}
+library(pointblank)
+```
+
+```{r}
+#Analysis will full stop if it doesn't meet this condition
+bg_chem %>% 
+    col_vals_gt(columns = O2, value = 0, na_pass = TRUE)
+```
+```{r}
+# You can add this logic into your pipeline to ensure you are only calculating on quality data and otherwise your pipeline will be interrupted
+bg_chem_final <- bg_chem %>% 
+    col_vals_gt(columns = O2, value = 0, na_pass = TRUE) %>% 
+    mutate(important_metric = O2 * 0.321)
+```
+
+### Can also use `pointblank` fn to create a report instead of stopping functions
+```{r}
+bg_chem_clean %>% 
+  #Create Agent with 4 different rules, positive chemistry, salinityvalue ranges, and accurate coord values
+    create_agent() %>% 
+    col_vals_gt(vars(O2, NO3, NO2, NH4, P, Si), value = 0, na_pass = TRUE) %>% 
+    col_vals_between(columns = vars(CTD_Salinity, Bottle_Salinity), left = 0, right = 42, na_pass = TRUE) %>% 
+    col_vals_between(Latitude, left = -90, right = 90) %>%
+    col_vals_between(Longitude, left = -180, right = 180) %>% 
+    interrogate() #interrogate the agent and generates a report
+
+```
+Here everything passed because we havent set up what should be a pass and what should be a fail.
+
+```{r}
+#Can set a number or percentage of rows over which to warn and stop at
+al <- action_levels(warn_at = 1, stop_at = 10) 
+#Can pass this to create agent fn or to an individual rule function after the create agent
+```
+
+```{r}
+bg_chem_clean %>% 
+    create_agent(actions = al) %>% 
+    col_vals_gt(vars(O2, NO3, NO2, NH4, P, Si), value = 0, na_pass = TRUE) %>% 
+    col_vals_between(columns = vars(CTD_Salinity, Bottle_Salinity), left = 0, right = 42, na_pass = TRUE) %>% 
+    col_vals_between(Latitude, left = -90, right = 90) %>%
+    col_vals_between(Longitude, left = -180, right = 180) %>% 
+    interrogate()
+
 ```
 
