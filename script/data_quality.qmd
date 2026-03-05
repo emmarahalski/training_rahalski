@@ -1,0 +1,27 @@
+---
+title: "data quality"
+format: html
+---
+## Quick Data Summaries using `skimr` and `visudat`
+```{r}
+#| message: false
+#| warning: false
+
+library(skimr)
+library(visdat)
+library(readr)
+library(dplyr)
+library(tidyverse)
+```
+
+```{r}
+#| message: false
+#| warning: false
+
+bg_chem <- read_csv('../data/BGchem2008data.csv')
+```
+```{r}
+#Skim package `skim` function
+skim(bg_chem)
+```
+
